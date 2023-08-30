@@ -6,8 +6,11 @@ ENV TZ="America/Chicago"
 ENV PIP_ROOT_USER_ACTION=ignore
 
 WORKDIR /app
-COPY requirements.txt .
+RUN mkdir --parents /app/data/receipts
+RUN apt update
+RUN apt install fonts-liberation2 -y
 RUN pip3 install --upgrade pip
+COPY requirements.txt .
 RUN pip3 install -r requirements.txt
 COPY src src
 
