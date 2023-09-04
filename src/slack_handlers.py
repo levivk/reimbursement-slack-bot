@@ -58,8 +58,8 @@ def handle_reimbursement_post(message: Dict[str, Any], say: Say, client: WebClie
     Handle a post to the reimbursement channel
     """
     logger.info(f'Received reimbursement post from user {message["user"]}')
-    if not is_reimbursement_channel(message):
-        return
+    # if not is_reimbursement_channel(message):
+    #     return
 
     # If it has an attachment jpg or png, reply with invoice number and email attachment
     if "files" in message:
@@ -73,10 +73,6 @@ def handle_reimbursement_post(message: Dict[str, Any], say: Say, client: WebClie
                 receipt_num: int = receipt_table[-1]['invoice'] + 1
             except IndexError:
                 receipt_num = 1
-
-            # Respond with receipt number
-            say(f'Thank you, your reimbursement is being processed. Receipt #{receipt_num:05}.', thread_ts=message['ts'], username=BOT_DISPLAY_NAME, icon_emoji=BOT_ICON)
-            logger.info(f'Processing receipt #{receipt_num:05}')
 
             # Extract message text
             try:
@@ -101,6 +97,10 @@ def handle_reimbursement_post(message: Dict[str, Any], say: Say, client: WebClie
                 uploader_name = uname,
                 message = message_text
             )
+
+            # Respond with receipt number
+            say(f'Thank you, your reimbursement is being processed. Receipt #{receipt_num:05}.', thread_ts=message['ts'], username=BOT_DISPLAY_NAME, icon_emoji=BOT_ICON)
+            logger.info(f'Processing receipt #{receipt_num:05}')
 
             receipt_table.append(invoice=receipt_num, slack_ts = message['ts'], date_requested = datetime.now(), date_payment_sent = None)
     
@@ -152,8 +152,8 @@ def process_receipt(
         im = Image.open(bio)
         # Scale image to constant width
         width, height = im.size
-        scale_height = int(height * width / RECEIPT_RESIZE_WIDTH)
-        im_scaled = im.resize((RECEIPT_RESIZE_WIDTH, scale_height))
+        scale_height = int(height * RECEIPT_RESIZE_WIDTH / width)
+        im_scaled = im.convert('RGB').resize((RECEIPT_RESIZE_WIDTH, scale_height))
         im.close()
 
     # Create header text
@@ -187,9 +187,9 @@ def process_receipt(
     im_scaled.close()
 
     # Save file to disk
-    # file_name = 'receipt_' + str(receipt_number) + '.jpg'
+    directory = "../data/receipts/"
     file_name = f'receipt_{receipt_number:05}.jpg'
-    file_path = (Path(__file__).parent / ("../data/receipts/" + file_name)).resolve()
+    file_path = (Path(__file__).parent / (directory + file_name)).resolve()
     joined_img.save(file_path, format="JPEG")
 
     if(show):
@@ -233,9 +233,10 @@ if __name__ == '__main__':
     # Test receipt processing
     EnvVars()
     process_receipt(
-        download_url = 'https://files.slack.com/files-pri/T92478E85-F05DWC1EP5Z/receipt.jpg',
+        # download_url = 'https://files.slack.com/files-pri/T92478E85-F05DWC1EP5Z/receipt.jpg',
+        download_url = 'https://files.slack.com/files-pri/T92478E85-F05QCMQ4T0S/screenshot_20230829-114325.png',
         uploader_name = 'Bobby B.',
         receipt_number= 1234,
-        message = 'This is the message posted to slack',
+        message = 'This is a test. Please delete.',
         show = True
     )
