@@ -3,13 +3,15 @@
 from typing import NamedTuple
 import os
 
+
 class EnvVarsTup(NamedTuple):
     MAIL_NAME: str = 'GMAIL_BOT_NAME'
     MAIL_ADDR: str = 'GMAIL_BOT_ADDRESS'
     MAIL_PASS: str = 'GMAIL_APP_PASSWORD'
     MAIL_DEST: str = 'MELIO_INVOICE_EMAIL'
-    SLACK_SS: str =  'SLACK_SIGNING_SECRET'
-    SLACK_BT: str =  'SLACK_BOT_TOKEN'
+    SLACK_SS: str = 'SLACK_SIGNING_SECRET'
+    SLACK_BT: str = 'SLACK_BOT_TOKEN'
+
 
 class EnvVars:
     """A singleton class that stores secrets from environment variables"""
@@ -30,7 +32,9 @@ class EnvVars:
             env_name = getattr(self.env_names, n)
             d[n] = os.environ.get(getattr(self.env_names, n))
             if not d[n]:
-                raise ValueError(f'Environment varaible {env_name} not set! Must set evironment variables: {" ".join(self.env_names)}')
+                raise ValueError(
+                    f'Environment varaible {env_name} not set! Must set evironment variables:'
+                    f'{" ".join(self.env_names)}')
         self.env_values = EnvVarsTup(**d)
 
     def get_mail_bot_name(self):
@@ -58,4 +62,3 @@ class EnvVars:
 #         val = os.environ.get(n)
 #         if not val:
 #             raise ValueError(f"Must define evironment variables: {' '.join(names)}")
-
