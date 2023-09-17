@@ -12,7 +12,7 @@ from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
 import smtplib
 from email.message import EmailMessage
-from env_secrets import EnvVars
+import config
 
 
 RECEIPT_MOD_MARGIN_HEIGHT = 600
@@ -154,7 +154,7 @@ def process_receipt(
     payment processor"""
 
     # Download file
-    slack_bot_token = EnvVars().get_slack_bot_token()
+    slack_bot_token = config.get_slack_bot_token()
     r = requests.get(download_url, headers={'Authorization': f'Bearer {slack_bot_token}'})
     r.raise_for_status()
     file_data = r.content
@@ -215,10 +215,10 @@ def process_receipt(
 
     # Send email with file
     msg = EmailMessage()
-    mail_name = EnvVars().get_mail_bot_name()
-    mail_addr = EnvVars().get_mail_bot_address()
-    mail_dest = EnvVars().get_destination_email()
-    mail_password = EnvVars().get_mail_bot_password()
+    mail_name = config.get_mail_bot_name()
+    mail_addr = config.get_mail_bot_address()
+    mail_dest = config.get_destination_email()
+    mail_password = config.get_mail_bot_password()
     msg["From"] = f'{mail_name} <{mail_addr}>'
     msg["To"] = mail_dest
     msg["Subject"] = file_name
@@ -247,11 +247,10 @@ def get_wrapped_text(text: str, font: ImageFont.FreeTypeFont,
 
 if __name__ == '__main__':
     # Test receipt processing
-    EnvVars()
+    config.check_env_vars()
     process_receipt(
         # download_url = 'https://files.slack.com/files-pri/T92478E85-F05DWC1EP5Z/receipt.jpg',
-        download_url=('https://files.slack.com/files-pri/T92478E85-F05QCMQ4T0S/'
-                      'screenshot_20230829-114325.png'),
+        download_url=('https://files.slack.com/files-pri/T92478E85-F05RZABKYMA/batterylamp.png'),
         uploader_name='Bobby B.',
         receipt_number=1234,
         message='This is a test. Please delete.',

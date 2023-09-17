@@ -6,12 +6,12 @@ import logging
 from pathlib import Path
 
 from slack_handlers import handle_message, handle_reimbursement_post
-from env_secrets import EnvVars
+import config
 
 
 app = App(
-    token=EnvVars().get_slack_bot_token(),
-    signing_secret=EnvVars().get_slack_signing_secret()
+    token=config.get_slack_bot_token(),
+    signing_secret=config.get_slack_signing_secret()
 )
 
 logging.basicConfig(level=logging.INFO)
