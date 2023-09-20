@@ -13,7 +13,7 @@ class ConfigVars(StrEnum):
     SLACK_BT = 'SLACK_BOT_TOKEN'
 
 
-def check_env_vars():
+def check_env_vars() -> None:
     '''Check that the necessary environment variables are set'''
     missing = []
     for k in ConfigVars:
@@ -28,31 +28,31 @@ def check_env_vars():
         )
 
 
-def get_mail_bot_name():
-    return os.environ.get(ConfigVars.MAIL_NAME)
+def get_mail_bot_name() -> str:
+    return os.environ[ConfigVars.MAIL_NAME]
 
 
-def get_mail_bot_address():
-    return os.environ.get(ConfigVars.MAIL_ADDR)
+def get_mail_bot_address() -> str:
+    return os.environ[ConfigVars.MAIL_ADDR]
 
 
-def get_mail_bot_password():
-    return os.environ.get(ConfigVars.MAIL_PASS)
+def get_mail_bot_password() -> str:
+    return os.environ[ConfigVars.MAIL_PASS]
 
 
-def get_destination_email():
-    return os.environ.get(ConfigVars.MAIL_DEST)
+def get_destination_email() -> str:
+    return os.environ[ConfigVars.MAIL_DEST]
 
 
-def get_slack_signing_secret():
-    return os.environ.get(ConfigVars.SLACK_SS)
+def get_slack_signing_secret() -> str:
+    return os.environ[ConfigVars.SLACK_SS]
 
 
-def get_slack_bot_token():
-    return os.environ.get(ConfigVars.SLACK_BT)
+def get_slack_bot_token() -> str:
+    return os.environ[ConfigVars.SLACK_BT]
 
 
-def test():
+def test() -> None:
     check_env_vars()
     print(f'mail name: {get_mail_bot_name()}')
     print(f'mail addr: {get_mail_bot_address()}')
