@@ -130,7 +130,13 @@ def wait_for_reimbursement_processed_email(table: PersistentTable) -> None:
         msg_text = (
             "Your reimbursement has been processed. " f"It should arrive in your account on {eta}."
         )
-        client.chat_postMessage(channel=REIMBURSEMENT_CHANNEL, thread_ts=slack_ts, text=msg_text, username=BOT_DISPLAY_NAME, icon_emoji=BOT_ICON)
+        client.chat_postMessage(
+            channel=REIMBURSEMENT_CHANNEL,
+            thread_ts=slack_ts,
+            text=msg_text,
+            username=BOT_DISPLAY_NAME,
+            icon_emoji=BOT_ICON,
+        )
 
         logger.info(f"Processed reimbursement #{invoice_num} to be received by {eta}")
 
