@@ -18,6 +18,7 @@ RECEIPT_MOD_MARGIN_HEIGHT = 600
 RECEIPT_RESIZE_WIDTH = 3000
 BOT_DISPLAY_NAME = "Reimbursement Bot"
 BOT_ICON = ":money_with_wings:"
+REIMBURSEMENT_CHANNEL = "C9NG0FSG4"
 
 logger = logging.getLogger(__name__)
 
@@ -115,12 +116,13 @@ def handle_reimbursement_post(
             )
             logger.info(f"Processing receipt #{receipt_num:05}")
 
-            receipt_table.append(
-                invoice=receipt_num,
-                slack_ts=message["ts"],
-                date_requested=datetime.now(),  # type: ignore
-                date_payment_sent=None,
-            )
+            with receipt_table.get_lock():
+                receipt_table.append(
+                    invoice=receipt_num,
+                    slack_ts=message["ts"],
+                    date_requested=datetime.now(),  # type: ignore
+                    date_payment_sent=None,
+                )
 
     # Otherwise, if it is top level comment, reply asking for a receipt
     elif "thread_ts" not in message:
@@ -149,7 +151,7 @@ def is_reimbursement_channel(message: Dict[str, Any]) -> bool:
         return False
 
     # return chan == "C05CF7LFU5U"
-    return chan == "C9NG0FSG4"
+    return chan == REIMBURSEMENT_CHANNEL
 
 
 def is_im(message: Dict[str, Any]) -> bool:

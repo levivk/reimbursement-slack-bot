@@ -1,13 +1,16 @@
 #!/bin/env python3
 
+import config
+from slack_handlers import handle_message, handle_reimbursement_post
+from emailing import emailing_thread
+
 from slack_bolt import App
 from slack_bolt.context.say.say import Say
 import logging
 from pathlib import Path
 from typing import List, Dict
+from threading import Thread
 
-from slack_handlers import handle_message, handle_reimbursement_post
-import config
 
 
 app = App(token=config.get_slack_bot_token(), signing_secret=config.get_slack_signing_secret())
@@ -41,7 +44,11 @@ def main() -> None:
     # Check environment variables
     config.check_env_vars()
 
-    # add listeners
+    # listen for emails
+    t = Thread(target=emailing_thread, daemon=True)
+    t.start()
+
+    # add slack listener
     app.event({"type": "message"})(handle_message)
     app.start(port=3000)
 

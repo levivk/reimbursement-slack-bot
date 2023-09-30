@@ -2,8 +2,8 @@ from io import TextIOWrapper
 import csv
 import os
 import shutil
-from typing import Any, Iterable, Callable, Mapping, Self, TypedDict, Type, TypeAlias
-from enum import StrEnum
+from typing import Any, Iterable, Callable, Mapping, Self, Type, Iterator
+from threading import Lock
 
 
 class PersistentTable:
@@ -24,6 +24,9 @@ class PersistentTable:
         self.fieldnames = fieldnames
         self.converters = converters
         self.items: list[dict[str, Any]] = list()
+
+        # Create lock for thread safety
+        self.lock = Lock()
 
         if not create_new and os.access(filename, os.R_OK):
             with open(filename, "r", newline="") as csvfile:
@@ -74,8 +77,8 @@ class PersistentTable:
                     d2[k] = f(d[k]) if f is not None else d[k]
                 self.items.append(d2)
 
-        except Exception:
-            raise ValueError(f"Data file {self.filename} not formatted correctly")
+        except Exception as e:
+            raise ValueError(f"Data file {self.filename} not formatted correctly or something: {e}")
 
     def __len__(self) -> int:
         return len(self.items)
@@ -85,6 +88,9 @@ class PersistentTable:
 
     def __str__(self) -> str:
         return str(self.items)
+
+    def __iter__(self) -> Iterator[dict[str,Any]]:
+        return iter(self.items)
 
     def append(self, **kwargs: Any) -> None:
         if set(kwargs) != set(self.fieldnames):
@@ -96,26 +102,12 @@ class PersistentTable:
         self.items.append(kwargs)
         self.sync()
 
+    def get_lock(self) -> Lock:
+        return self.lock
+
 
 if __name__ == "__main__":
     import random
-
-    # Make and use a persistent dictionary
-    # with PersistentDict('/tmp/demo.json', 'c', format='json') as d:
-    #     print(d, 'start')
-    #     d['abc'] = '123'
-    #     d['rand'] = random.randrange(10000)
-    #     d['foo'] = 'birb'
-    #     print(d, 'updated')
-
-    # # Show what the file looks like on disk
-    # with open('/tmp/demo.json', 'rb') as f:
-    #     print(f.read())
-    # def convert_int(s: str) -> int:
-    #     return int(s)
-
-    # def convert_float(s: str) -> float:
-    #     return float(s)
 
     converters = dict(
         text=None,
@@ -125,13 +117,13 @@ if __name__ == "__main__":
     keys = list(converters.keys())
     with PersistentTable("/tmp/demo1.csv", keys, converters=converters, create_new=False) as t:
         print(t, "start")
-        # d = dict()
-        # d[keys[0]] = 'mom'
-        # d[keys[1]] = 123
-        # d[keys[2]] = random.random()
         t.append(text="hi", number=345, random=random.random())
         print(t, "updated")
-        print("t[2]", t[-1])
+        t[2]['random'] = random.random()
+        print("t[2]", t[2])
+
+        for r in t:
+            print(r)
 
     with open("/tmp/demo1.csv", "r") as f:
         print("\n", f.read())
