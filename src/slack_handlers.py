@@ -137,7 +137,7 @@ def handle_reimbursement_post(
 
 
 def handle_im(message: Dict[str, Any], say: Say) -> None:
-    say("Fight me")
+    say("I am Reimbursement bot. Fight me.")
 
 
 # TODO: get list of channels and get chan ID from there, rather than magic number
